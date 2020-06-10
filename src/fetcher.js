@@ -20,10 +20,15 @@ class fetcher {
   }
 
   fetch () {
+    this._fetch()
+  }
 
+  whileFetch () {
+    let maxtry = this.options.
   }
 
   _fetch (url, config = {}) {
+    // just accept application json
     config.headers['Content-Type'] = 'application/json; charset=utf-8'
     return fetch(url, config)
   }
