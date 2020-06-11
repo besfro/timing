@@ -1,8 +1,10 @@
 /*
- * fetch time server
- * This class is used to get precise time from timeServer
+ * fetcher
+ * This class is used to fetch server
+ * dependncy fetch API
  */   
 
+ 
 // default options
 import config from './config'
 
@@ -19,18 +21,32 @@ class fetcher {
     }
   }
 
-  fetch () {
-    this._fetch()
+  async fetch () {
+    const { url, fallback } = this.options
+    const result = await this._whileFetch(url)
+    if (result) {
+      return result
+    } else {
+      let fallbackResult = await this._whileFetch(fallback)
+      return fallbackResult ? fallbackResult : Promise.reject(false)
+    }
   }
 
-  whileFetch () {
-    let maxtry = this.options.
+  async _whileFetch (url) {
+    const { maxtry } = this.options
+    const result = await (async function dowhile (count) {
+      const fetchResult = await _fetch(url).catch(e => false)
+      if (fetchResult) {    
+        return fetchResult
+      } else {
+        return time++ < 10 ? dowhile(count) : false
+      }
+    })(maxtry)
+    return result
   }
 
-  _fetch (url, config = {}) {
-    // just accept application json
-    config.headers['Content-Type'] = 'application/json; charset=utf-8'
-    return fetch(url, config)
+  _fetch (url) {
+    return fetch(url, this.options)
   }
 }
 
