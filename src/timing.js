@@ -1,32 +1,45 @@
 /*
  * Timing.js
- * This class is used to perform some precise tasks  
+ * This class is used to perform some tasks at precise timed  
  * author Lengchars@gmail.com
  * 
  */
 
+ 
 // default options
-const getDefOptions = () => {
-  return {
-    // 获取精准时间的服务接口
-    timeServer: {
-      method: 'GET',
-      // 时间服务接口地址
-      url: 'https://time.clcc.dev/timeis',
-      // 备用地址
-      fallback: 'https://time.clcc.dev/timeis',
-      // 最大尝试次数
-      maxtry: 10
-    }
-  }
-}
+import config from './config'
+// fetcher
+import fetcher from './fetcher'
 
 class Timing {
-  constructor () {
+
+  constructor (options = {}) {
+    this.options = Object.assign({}, config, options)
+    options.timeServer.headers['Content-Type'] = 'application/json; charset=utf-8'
+    this.fetch = new fetcher(options.timeServer)
+  }
+
+  /*
+   * Set a timed task
+   * @params <Number> timeout - delay time 
+   * @return <Promise> task start 
+   */
+  task (timeout = 0) {
 
   }
 
-  task(timeout = 0) {
+  /*
+   * Get the precise time from timeServer 
+   * @return <Promise> fetch result 
+   */
+  fetch () {}
+
+  /*
+   * Set a timed task
+   * @params <Number> timeout - delay time 
+   * @return <Promise> task start 
+   */
+  toString () {
 
   }
 }
