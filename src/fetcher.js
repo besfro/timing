@@ -15,12 +15,18 @@ class fetcher {
     this.checked()
   }
 
+  /*
+  * checked support
+  */
   checked () {
     if (window.fetch) {
       console.warn(`Browser unsupports fetch API (See https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).`)
     }
   }
 
+  /*
+   * fetch server  
+   */
   async fetch () {
     const { url, fallback } = this.options
     const result = await this._whileFetch(url)
@@ -31,7 +37,11 @@ class fetcher {
       return fallbackResult ? fallbackResult : Promise.reject(false)
     }
   }
-
+  
+  /*
+   * polling request 
+   * 
+   */
   async _whileFetch (url) {
     const { maxtry } = this.options
     const result = await (async function dowhile (count) {

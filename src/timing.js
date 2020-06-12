@@ -21,25 +21,29 @@ class Timing {
 
   /*
    * Set a timed task
-   * @params <Number> timeout - delay time 
-   * @return <Promise> task start 
+   * @params <String> dateString - a format start date (e.g. 2020-10-10 21:11:11) 
+   * @params <Function> process - something to do 
+   * @return <Object> props.delay - 
+   * @return <Object> props.stop - 
    */
-  task (timeout = 0) {
+  task (dateString, process) {
 
   }
 
   /*
    * Get the precise time from timeServer 
-   * @return <Promise> fetch result 
+   * @return <Promise> request result 
    */
   fetch () {}
 
   /*
-   * Set a timed task
+   * Get the current timestamp
    * @params <Number> timeout - delay time 
    * @return <Promise> task start 
    */
-  toString () {
+  now () {
 
   }
 }
+
+export default Timing
