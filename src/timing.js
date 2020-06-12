@@ -1,8 +1,7 @@
-/*
- * Timing.js
- * This class is used to perform some tasks at precise timed  
- * author Lengchars@gmail.com
- * 
+/**
+ * @name Timing.js
+ * @desciption This class is used to perform some tasks at precise timed  
+ * @author Lengchars@gmail.com
  */
 
  
@@ -11,6 +10,11 @@ import config from './config'
 // fetcher
 import fetcher from './fetcher'
 
+/**
+ * @class
+ * @name Timing
+ * @description create a timing instance
+ */
 class Timing {
 
   constructor (options = {}) {
@@ -19,26 +23,25 @@ class Timing {
     this.fetch = new fetcher(options.timeServer)
   }
 
-  /*
+  /**
    * Set a timed task
-   * @params <String> dateString - a format start date (e.g. 2020-10-10 21:11:11) 
-   * @params <Function> process - something to do 
-   * @return <Object> props.delay - 
-   * @return <Object> props.stop - 
+   * @param {String} dateString - a format start date (e.g. 2020-10-10 21:11:11) 
+   * @param {Function} process - something to do 
+   * @return {Object} delay - task delay time, clear() - clear this timed task
    */
   task (dateString, process) {
 
   }
 
-  /*
+  /**
    * Get the precise time from timeServer 
    * @return <Promise> request result 
    */
   fetch () {}
 
-  /*
+  /**
    * Get the current timestamp
-   * @params <Number> timeout - delay time 
+   * @param <Number> timeout - delay time 
    * @return <Promise> task start 
    */
   now () {
