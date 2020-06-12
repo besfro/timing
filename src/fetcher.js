@@ -1,4 +1,4 @@
-/*
+/**
  * fetcher
  * This class is used to fetch server
  * dependncy fetch API
@@ -15,16 +15,16 @@ class fetcher {
     this.checked()
   }
 
-  /*
-  * checked support
-  */
+  /**
+   * checked support
+   */
   checked () {
     if (window.fetch) {
       console.warn(`Browser unsupports fetch API (See https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).`)
     }
   }
 
-  /*
+  /**
    * fetch server  
    */
   async fetch () {
@@ -38,7 +38,7 @@ class fetcher {
     }
   }
   
-  /*
+  /**
    * polling request 
    * 
    */

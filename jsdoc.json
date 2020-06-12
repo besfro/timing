@@ -1,0 +1,20 @@
+{
+  "source": {
+    "include": ["./src"],
+    "includePattern": "\\.js$"
+  },
+  "opts": {
+    "template": "node_modules/docdash",
+    "encoding": "utf-8",
+    "destination": "./docs/",
+    "recurse": true,
+    "verbose": true
+  },
+  "openGraph": {                 
+    "title": "Timing",               
+    "type": "website",         
+    "image": "",             
+    "site_name": "",            
+    "url": ""                   
+  }
+}
