@@ -4,7 +4,6 @@ export default {
     headers: {
       'Content-Type': 'application/json; charset=utf-8'
     },
-    body: {},
     // 时间服务接口地址
     url: 'https://time.clcc.dev/timeis',
     // 备用地址

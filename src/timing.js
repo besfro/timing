@@ -9,6 +9,8 @@
 import config from './config'
 // fetcher
 import fetcher from './fetcher'
+// utils
+import { dateStringParser, dateParser } from './utils'
 
 /**
  * @class
@@ -19,9 +21,9 @@ class Timing {
 
   constructor (options = {}) {
     // normalize options
-    const options = this.options = this.normalize(options)
+    const opts = this.options = this._normalize(options)
     // fetcher instance. get the timestamp from timeServer
-    this._fetch = new fetcher(options.timeServer)
+    this.fetcher = new fetcher(opts.timeServer)
     // time info
     this.timeInfo = {
       // timeServer response timestamp
@@ -38,7 +40,7 @@ class Timing {
     // is already fetch timeServer
     this.isFetch = false
     // custom handler
-    options.fetchHandler && (this.fetchHandler = options.fetchHandler)
+    opts.fetchHandler && (this.fetchHandler = opts.fetchHandler)
   }
   
   /**
@@ -49,10 +51,19 @@ class Timing {
    */
   task (dateString, process) {
     const { isFetch } = this
+    // fetch the timeServer before call task function
     if (!isFetch) {
       console.warn(`Fetch timeServer before call task function`)
     }
-    const delay = 0
+    // parser dateString
+    const dateParser = dateStringParser(dateString)
+    if (!dateParser) {
+      console.error(`Invalid dateString format. e.g. 2019-01-01 06:06:06`)
+      return
+    }
+    
+    // delay run
+    const delay = dateParser.timestamp - this.now()
     const id = setTimeout(() => process(), delay)
     return {
       id,
@@ -69,9 +80,11 @@ class Timing {
    */
   async fetch () {
     // fetch timeServer
-    const fetchResult = await this._fetch().catch(e => e)
+    const fetchResult = await this.fetcher.fetch().catch(e => e)
     // mark now
     this.timeInfo.mark = Date.now()
+    // set tag
+    this.isFetch = true
     // handler 
     const timestamp = this.fetchHandler(fetchResult) || Date.now()
     const serverTiming = this.getServerTiming()
@@ -104,6 +117,9 @@ class Timing {
     }
   }
 
+  // fetcher instance
+  fetcher () {}
+
   /**
    * Get the precise time from timeServer 
    * @return <Promise> request result 
@@ -123,12 +139,14 @@ class Timing {
    * @return <Promise> task start 
    */
   now () {
-    const { timeInfo: { timestamp, offset } } = this
-    return timestamp + offset + Date.now() - this.mark
+    const timestamp = this._now()
+    return dateParser(timestamp)
   }
 
-  // fetcher instance
-  _fetch () {}
+  _now () {
+    const { timeInfo: { timestamp, offset, mark } } = this
+    return timestamp + offset + Date.now() - mark
+  }
 
   _getPerformaceTiming () {
     // need performance api
@@ -137,7 +155,7 @@ class Timing {
       return null
     }
 
-    const { timeServer } = this
+    const { timeServer } = this.options
     const timing = performance.getEntries().filter(item => item.name === timeServer.url)[0]
     
     if (!timing.responseStart) {
@@ -153,7 +171,6 @@ class Timing {
   }
 
   _normalize (options) {
-    const { headers, body } = options.headers
     const headers = Object.assign({}, config.headers, options.headers)
     const body = Object.assign({}, config.body, options.body) 
     return Object.assign({}, config, options, { headers, body })
