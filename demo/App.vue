@@ -27,7 +27,7 @@ export default {
         return `您的系统时间已校准`
       } else if (offset < 0) {
         return `您的系统时间慢了 ${seconds} 秒`
-      } else if(offset > 0) {
+      } else {
         return `您的系统时间快了 ${seconds} 秒`
       }
     }

@@ -12,7 +12,7 @@ class fetcher {
   
   constructor (options = {}) {
     this.options = Object.assign({}, config.timeServer, options)
-    this.checked()
+    // this.checked()
   }
 
   /**
@@ -34,6 +34,7 @@ class fetcher {
       return result
     } else {
       let fallbackResult = await this._whileFetch(fallback)
+      console.warn(`Can not get time from timeServer`)
       return fallbackResult ? fallbackResult : Promise.reject(false)
     }
   }
@@ -49,15 +50,26 @@ class fetcher {
       if (fetchResult) {    
         return fetchResult
       } else {
-      console.log(count, url)
-        return count++ < maxtry ? dowhile(count) : false
+        return count++ < maxtry ? dowhile(count, ctx) : false
       }
     })(0, this)
     return result
   }
 
   _fetch (url) {  
-    return fetch(url, this.options).catch(e => e)
+    const { method, headers } = this.options
+    return new Promise((res, rej) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open(method, url)
+      Object.keys(headers).forEach(key => xhr.setRequestHeader(key, headers[key]))
+      xhr.responseType = 'json'
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          xhr.status === 200 ? res(xhr.response) : rej(xhr.response)
+        }
+      }
+      xhr.send()
+    })
   }
 }
 

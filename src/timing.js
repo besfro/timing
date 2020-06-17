@@ -87,6 +87,7 @@ class Timing {
     this.isFetch = true
     // handler 
     const timestamp = this.fetchHandler(fetchResult) || Date.now()
+    console.log(timestamp - this.timeInfo.mark)
     const serverTiming = this.getServerTiming()
     // update instance time
     this.updateTimeInfo(timestamp, serverTiming)
@@ -103,7 +104,7 @@ class Timing {
     timeInfo.serverTiming = serverTiming 
     if (responseEnd && responseStart) {
       timeInfo.requestOffset = responseEnd - responseStart
-      timeInfo.offset = timestamp + timeInfo.requestOffset - timeInfo.mark
+      timeInfo.offset = timeInfo.mark - (timestamp + timeInfo.requestOffset)
     }
   }
 
@@ -126,7 +127,7 @@ class Timing {
    */
   fetchHandler (res) {
     if (res) {
-      return res.json().timestamp
+      return res.timestamp
     } else {
       console.warn(`Can not get timestamp from timeServer. It will effect execution time`)
       return Date.now()
@@ -158,7 +159,7 @@ class Timing {
     const { timeServer } = this.options
     const timing = performance.getEntries().filter(item => item.name === timeServer.url)[0]
     
-    if (!timing.responseStart) {
+    if (!timing || !timing.responseStart) {
       console.warn(
         `Can't get responseStart or responseEnd from Resource Timing API. 
          Make sure 'Timing-Allow-Origin' header is present on the requested resource.
