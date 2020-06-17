@@ -14,5 +14,5 @@ export default {
   /**
    * Custom timeServer fetch handler  
    */
-  fetchHandler () {}
+  // fetchHandler () {}
 }
