@@ -19,7 +19,7 @@ class fetcher {
    * checked support
    */
   checked () {
-    if (window.fetch) {
+    if (!window.fetch) {
       console.warn(`Browser unsupports fetch API (See https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).`)
     }
   }
@@ -44,19 +44,20 @@ class fetcher {
    */
   async _whileFetch (url) {
     const { maxtry } = this.options
-    const result = await (async function dowhile (count) {
-      const fetchResult = await _fetch(url).catch(e => false)
+    const result = await (async function dowhile (count, ctx) {
+      const fetchResult = await ctx._fetch(url).catch(() => false)
       if (fetchResult) {    
         return fetchResult
       } else {
-        return time++ < 10 ? dowhile(count) : false
+      console.log(count, url)
+        return count++ < maxtry ? dowhile(count) : false
       }
-    })(maxtry)
+    })(0, this)
     return result
   }
 
-  _fetch (url) {
-    return fetch(url, this.options)
+  _fetch (url) {  
+    return fetch(url, this.options).catch(e => e)
   }
 }
 

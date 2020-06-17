@@ -1,17 +1,55 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div id="now">{{ dateString || 'loading' }}</div>
+    <div>{{ offsetText }}</div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Timing from '../src/timing'
 
 export default {
   name: 'App',
-  components: {
-    HelloWorld
+  data () {
+    return {
+      timing: null,
+      timeInfo: null,
+      dateString: null
+    }
+  },
+  computed: {
+    offsetText () {
+      // 精确度 offset 5毫秒内都属于校准
+      const precision = 5
+      const { offset = 0 } = this.timeInfo || {}
+      const seconds = Math.ceil(offset / 1000)
+      if (offset === 0 || Math.abs(offset) < precision) {
+        return `您的系统时间已校准`
+      } else if (offset < 0) {
+        return `您的系统时间慢了 ${seconds} 秒`
+      } else if(offset > 0) {
+        return `您的系统时间快了 ${seconds} 秒`
+      }
+    }
+  },
+  mounted () {
+    this.initial()
+  },
+  methods: {
+    async initial () {
+      const timing = this.timing = new Timing()
+      this.timeInfo = await timing.fetch()
+      console.log(this.timeInfo)
+      setTimeout(() => this.runTiming())
+    },
+    runTiming () {
+      setInterval(() => {
+        const now = this.timing.now()
+        const milliseconds = Math.floor(now.milliseconds / 10)
+        const millisecondsFixed = milliseconds < 10 ? ('0' + milliseconds) : milliseconds
+        this.dateString = `${now.string} ${millisecondsFixed}`
+      })
+    }
   }
 }
 </script>
