@@ -6,7 +6,6 @@
     "demo": "vue-cli-service serve ./demo/main.js",
     "build": "vue-cli-service build",
     "build:doc": "jsdoc -c jsdoc.json",
-    "serve:doc": "anywhere -h localhost -d ./docs",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

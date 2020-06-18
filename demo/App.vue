@@ -20,15 +20,14 @@ export default {
   computed: {
     offsetText () {
       // 精确度 offset 5毫秒内都属于校准
-      const precision = 5
-      const { offset = 0 } = this.timeInfo || {}
-      const seconds = Math.ceil(offset / 1000)
-      if (offset === 0 || Math.abs(offset) < precision) {
+      const precision = 10
+      const { offset = 0, offsetMillseconds = 0 } = this.timeInfo || {}
+      if (offsetMillseconds === 0 || Math.abs(offsetMillseconds) < precision) {
         return `您的系统时间已校准`
       } else if (offset < 0) {
-        return `您的系统时间慢了 ${seconds} 秒`
+        return `您的系统时间慢了 ${offset} 秒`
       } else {
-        return `您的系统时间快了 ${seconds} 秒`
+        return `您的系统时间快了 ${offset} 秒`
       }
     }
   },

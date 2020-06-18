@@ -8,9 +8,11 @@
 // default options
 import config from './config'
 // fetcher
-import fetcher from './fetcher'
+import Fetcher from './fetcher'
+// performance
+import Performance from './performance'
 // utils
-import { dateStringParser, dateParser } from './utils'
+import { dateStringParser, dateParser, toFixed } from './utils'
 
 /**
  * @class
@@ -23,15 +25,19 @@ class Timing {
     // normalize options
     const opts = this.options = this._normalize(options)
     // fetcher instance. get the timestamp from timeServer
-    this.fetcher = new fetcher(opts.timeServer)
+    this._fetcher = new Fetcher(opts.timeServer)
+    // performance toolW
+    this._performance = new Performance('timing')
     // time info
     this.timeInfo = {
       // timeServer response timestamp
       timestamp: Date.now(),
       // mark now time when fetch response end
       mark: Date.now(),
-      // server time and client time offset
+      // server time and client time seconds offset
       offset: 0,
+      // server time and client time millseconds offset
+      offsetMillseconds: 0,
       // response start and response end offset
       requestOffset: 0,
       // performance resource timing
@@ -80,9 +86,11 @@ class Timing {
    */
   async fetch () {
     // fetch timeServer
-    const fetchResult = await this.fetcher.fetch().catch(e => e)
+    const fetchResult = await this._fetcher.fetch().catch(e => e)
     // mark now
     this.timeInfo.mark = Date.now()
+    // performance mark
+    this._performance.mark()
     // set tag
     this.isFetch = true
     // handler 
@@ -104,7 +112,17 @@ class Timing {
     timeInfo.serverTiming = serverTiming 
     if (responseEnd && responseStart) {
       timeInfo.requestOffset = responseEnd - responseStart
-      timeInfo.offset = timeInfo.mark - (timestamp + timeInfo.requestOffset)
+      // performance mark
+      this._performance.mark()
+      // time consuming
+      let measure = this._performance.measure() || {}
+      let consuming = measure.duration || 0
+      // mill seconds offset
+      timeInfo.offsetMillseconds = toFixed(
+        timeInfo.mark - consuming - (timestamp + timeInfo.requestOffset), 4
+      )
+      // seconds offset
+      timeInfo.offset = toFixed(timeInfo.offsetMillseconds / 1000, 2)
     }
   }
 
@@ -117,9 +135,6 @@ class Timing {
       return serverTiming
     }
   }
-
-  // fetcher instance
-  fetcher () {}
 
   /**
    * Get the precise time from timeServer 
@@ -176,6 +191,12 @@ class Timing {
     const body = Object.assign({}, config.body, options.body) 
     return Object.assign({}, config, options, { headers, body })
   }
+
+  // fetcher instance
+  _fetcher () {}
+
+  //
+  _performance () {}
 }
 
 export default Timing

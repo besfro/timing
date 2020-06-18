@@ -2,6 +2,13 @@ const numFixed = num => {
   return num < 10 ? `0${num}` : num
 }
 
+// fixed decimal number
+const toFixed = (val, decimal = 2) => {
+  const num = +val || 0
+  const base = Math.pow(10, decimal)
+  return Math.round(num * base) / base
+}
+
 // just accept format 2020-01-01 21:01:01
 const dateStringParser = (dateString = '') => {
   const regexp = new RegExp(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/)
@@ -25,6 +32,8 @@ const dateStringParser = (dateString = '') => {
   }
 }
 
+// date parser
+// just accpet timestamp
 const dateParser = timestamp => {
   if (!timestamp) {
     return
@@ -59,5 +68,6 @@ const dateParser = timestamp => {
 
 export {
   dateStringParser,
-  dateParser
+  dateParser,
+  toFixed
 }
