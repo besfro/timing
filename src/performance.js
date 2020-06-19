@@ -5,7 +5,7 @@
 
 class Formance {
 
-  constructor (name, maxMarks = 10) {
+  constructor (name, maxMarks = 2) {
     // save max performance mark
     this.maxMarks = maxMarks
     this.name = name
@@ -32,7 +32,10 @@ class Formance {
       return
     }
     performance.measure(name, marks[len - 2], marks[len - 1])
-    return performance.getEntriesByName(name)
+    const entries = performance.getEntriesByName(name)[0]
+    performance.clearMarks()
+    performance.clearMeasures()
+    return entries
   }
 
 }

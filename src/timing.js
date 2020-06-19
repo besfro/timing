@@ -40,6 +40,8 @@ class Timing {
       offsetMillseconds: 0,
       // response start and response end offset
       requestOffset: 0,
+      // time consuming
+      consuming: 0,
       // performance resource timing
       serverTiming: {}
     }
@@ -121,6 +123,7 @@ class Timing {
       timeInfo.offsetMillseconds = toFixed(
         timeInfo.mark - consuming - (timestamp + timeInfo.requestOffset), 4
       )
+      timeInfo.consuming = consuming
       // seconds offset
       timeInfo.offset = toFixed(timeInfo.offsetMillseconds / 1000, 2)
     }
@@ -172,7 +175,7 @@ class Timing {
     }
 
     const { timeServer } = this.options
-    const timing = performance.getEntries().filter(item => item.name === timeServer.url)[0]
+    const timing = performance.getEntries().filter(item => item.name === timeServer.url).pop()
     
     if (!timing || !timing.responseStart) {
       console.warn(

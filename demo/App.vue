@@ -2,6 +2,32 @@
   <div id="app">
     <div id="now">{{ dateString || 'loading' }}</div>
     <div>{{ offsetText }}</div>
+    <div id="test">
+      <button @click="timingTest">test timing</button>
+      <select placeholder="select test count" v-model="testCount">
+        <option v-for="item in 5" :value="item * 10" :key="item">{{item * 10}}</option>
+      </select>
+      <table border="0">
+        <tr>
+          <th>offset</th>
+          <th>offsetMillseconds</th>
+          <th>timestamp</th>
+          <th>mark</th>
+          <th>responseStart</th>
+          <th>responseEnd</th>
+          <th>consuming</th>
+        </tr>
+        <tr v-for="item of testArr" :key="item.cnt">
+          <td>{{item.offset}}</td>
+          <td>{{item.offsetMillseconds}}</td>
+          <td>{{item.timestamp}}</td>
+          <td>{{item.mark}}</td>
+          <td>{{item.serverTiming.responseStart}}</td>
+          <td>{{item.serverTiming.responseEnd}}</td>
+          <td>{{item.consuming}}</td>
+        </tr>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -14,7 +40,9 @@ export default {
     return {
       timing: null,
       timeInfo: null,
-      dateString: null
+      dateString: null,
+      testArr: [],
+      testCount: 20
     }
   },
   computed: {
@@ -47,7 +75,25 @@ export default {
         const milliseconds = Math.floor(now.milliseconds / 10)
         const millisecondsFixed = milliseconds < 10 ? ('0' + milliseconds) : milliseconds
         this.dateString = `${now.string} ${millisecondsFixed}`
-      })
+      }, 10)
+    },
+    timingTest () {
+      const max = this.testCount
+      const fetch = async cnt => {
+        if (cnt++ < max) {
+          let timing = JSON.parse(
+            JSON.stringify(
+              await this.timing.fetch()
+            )
+          )
+          timing.key = cnt
+          console.log(timing)
+          this.testArr.push(timing)
+          fetch(cnt)    
+        }
+      }
+      this.testArr = []
+      fetch(0)
     }
   }
 }
@@ -61,5 +107,16 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+#test {
+  margin: 30px auto;
+  width: 1200px;
+}
+#test button {
+  margin-right: 10px;
+}
+#test table {
+  margin-top: 20px;
+  width: 100%
 }
 </style>
