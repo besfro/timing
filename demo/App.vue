@@ -82,7 +82,7 @@ export default {
         if (cnt++ < max) {
           let timing = JSON.parse(
             JSON.stringify(
-              await this.timing.fetch()
+              await this.timing.adju()
             )
           )
           timing.key = cnt
