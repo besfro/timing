@@ -1,6 +1,7 @@
 export default {
+  maxAdju: 10,
   timeServer: {
-    method: 'GET',
+    method: 'HEAD',
     headers: {
       'Content-Type': 'application/json; charset=utf-8'
     },

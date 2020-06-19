@@ -65,7 +65,7 @@ class fetcher {
       xhr.responseType = 'json'
       xhr.onreadystatechange = () => {
         if (xhr.readyState === XMLHttpRequest.DONE) {
-          xhr.status === 200 ? res(xhr.response) : rej(xhr.response)
+          xhr.status === 200 ? res(xhr) : rej(xhr.response)
         }
       }
       xhr.send()
