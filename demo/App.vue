@@ -15,7 +15,7 @@
           <th>mark</th>
           <th>responseStart</th>
           <th>responseEnd</th>
-          <th>consuming</th>
+          <th>responseOffset</th>
         </tr>
         <tr v-for="item of testArr" :key="item.cnt">
           <td>{{item.offset}}</td>
@@ -24,7 +24,7 @@
           <td>{{item.mark}}</td>
           <td>{{item.serverTiming.responseStart}}</td>
           <td>{{item.serverTiming.responseEnd}}</td>
-          <td>{{item.consuming}}</td>
+          <td>{{item.responseOffset}}</td>
         </tr>
       </table>
     </div>
@@ -65,9 +65,8 @@ export default {
   methods: {
     async initial () {
       const timing = this.timing = new Timing()
-      this.timeInfo = await timing.fetch()
-      console.log(this.timeInfo)
-      setTimeout(() => this.runTiming())
+      this.timeInfo = await timing.adju()
+      this.runTiming()
     },
     runTiming () {
       setInterval(() => {
@@ -87,7 +86,6 @@ export default {
             )
           )
           timing.key = cnt
-          console.log(timing)
           this.testArr.push(timing)
           fetch(cnt)    
         }

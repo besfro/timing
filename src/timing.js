@@ -39,14 +39,12 @@ class Timing {
       // server time and client time millseconds offset
       offsetMillseconds: 0,
       // response start and response end offset
-      requestOffset: 0,
-      // time consuming
-      consuming: 0,
+      responseOffset: 0,
       // performance resource timing
       serverTiming: {}
     }
     // is already fetch timeServer
-    this.isFetch = false
+    this.isAdju = false
     // custom handler
     opts.fetchHandler && (this.fetchHandler = opts.fetchHandler)
   }
@@ -58,9 +56,9 @@ class Timing {
    * @return {Object} delay - task delay time, clear() - clear this timed task
    */
   task (dateString, process) {
-    const { isFetch } = this
+    const { isAdju } = this
     // fetch the timeServer before call task function
-    if (!isFetch) {
+    if (!isAdju) {
       console.warn(`Fetch timeServer before call task function`)
     }
     // parser dateString
@@ -82,6 +80,48 @@ class Timing {
     }
   }
 
+  async adju () {
+    const maxAdju = this.options.maxAdju || 10
+    const timeDiffArr = []
+    await (async function addTimeDiff(cnt, ctx) {
+      if (cnt++ < maxAdju) {
+        let fetchInfo = await ctx.fetch()
+        fetchInfo && timeDiffArr.push(
+          ctx.timeDiff(fetchInfo)
+        )
+        return addTimeDiff(cnt, ctx)
+      }
+    })(0, this)
+    // adju fail
+    if (timeDiffArr.length < 1) {
+      console.warn(`Time adju fail. Please adju again`)
+    } else {
+      timeDiffArr.sort((a, b) => a.offset - b.offset)
+      console.log(timeDiffArr)
+      this.isAdju = true
+      return Object.assign(this.timeInfo, timeDiffArr.shift())
+    }
+  }
+
+  timeDiff ({
+    timestamp = Date.now(), 
+    mark = Date.now(), 
+    serverTiming = {}
+  }) {
+    const diff = { timestamp, mark, serverTiming }
+    const { responseEnd, responseStart } = serverTiming
+    if (responseEnd && responseStart) {
+      diff.responseOffset = responseEnd - responseStart
+      // mill seconds offset
+      diff.offsetMillseconds = toFixed(
+        mark - (timestamp + diff.responseOffset), 4
+      )
+      // seconds offset
+      diff.offset = toFixed(diff.offsetMillseconds / 1000, 2)
+    }
+    return diff
+  }
+
   /**
    * Get the precise time from timeServer 
    * @return <Promise> request result 
@@ -89,54 +129,20 @@ class Timing {
   async fetch () {
     // fetch timeServer
     const fetchResult = await this._fetcher.fetch().catch(e => e)
-    // mark now
-    this.timeInfo.mark = Date.now()
-    // performance mark
-    this._performance.mark()
-    // set tag
-    this.isFetch = true
-    // handler 
-    const timestamp = this.fetchHandler(fetchResult) || Date.now()
-    console.log(timestamp - this.timeInfo.mark)
-    const serverTiming = this.getServerTiming()
-    // update instance time
-    this.updateTimeInfo(timestamp, serverTiming)
-    return this.timeInfo
-  }
-
-  /**
-   * updateTiming 
-   */
-  updateTimeInfo (timestamp = Date.now(), serverTiming = {}) {
-    const { timeInfo } = this
-    const { responseEnd, responseStart } = serverTiming
-    timeInfo.timestamp = timestamp
-    timeInfo.serverTiming = serverTiming 
-    if (responseEnd && responseStart) {
-      timeInfo.requestOffset = responseEnd - responseStart
-      // performance mark
-      this._performance.mark()
-      // time consuming
-      let measure = this._performance.measure() || {}
-      let consuming = measure.duration || 0
-      // mill seconds offset
-      timeInfo.offsetMillseconds = toFixed(
-        timeInfo.mark - consuming - (timestamp + timeInfo.requestOffset), 4
-      )
-      timeInfo.consuming = consuming
-      // seconds offset
-      timeInfo.offset = toFixed(timeInfo.offsetMillseconds / 1000, 2)
+    const mark = Date.now()
+    if (fetchResult) {
+      // handler 
+      const timestamp = this.fetchHandler(fetchResult) || Date.now()
+      const serverTiming = this.getServerTiming()
+      return { timestamp, mark, serverTiming }
     }
+    // update instance time
+    // this.updateTimeInfo(timestamp, serverTiming)
+    // return { timestamp, serverTiming }
   }
 
   getServerTiming () {
-    const { timeInfo: { serverTiming }, isFetch } = this
-    // is already fetch
-    if (isFetch) {
-      return this._getPerformaceTiming() || serverTiming
-    } else {
-      return serverTiming
-    }
+    return this._getPerformaceTiming() || {}
   }
 
   /**
@@ -145,7 +151,7 @@ class Timing {
    */
   fetchHandler (res) {
     if (res) {
-      return res.timestamp
+      return +res.getResponseHeader('x-server-timing')
     } else {
       console.warn(`Can not get timestamp from timeServer. It will effect execution time`)
       return Date.now()
