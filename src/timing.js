@@ -4,6 +4,7 @@
  * @author Lengchars@gmail.com
  */
 
+/*eslint no-console: ["error", { allow: ["warn", "error"] }] */
  
 // default options
 import config from './config'
@@ -70,7 +71,7 @@ class Timing {
     }
     
     // delay run
-    const delay = dateParser.timestamp - this.now()
+    const delay = dateParser.timestamp - this._now()
     const id = setTimeout(() => process(), delay)
     return {
       id,
@@ -98,7 +99,6 @@ class Timing {
       console.warn(`Time adju fail. Please try again`)
     } else {
       timeDiffArr.sort((a, b) => a.offset - b.offset)
-      console.log(timeDiffArr)
       this.isAdju = true
       this._performance.clearResource()
       return Object.assign(this.timeInfo, timeDiffArr.shift())

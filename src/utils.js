@@ -9,29 +9,6 @@ const toFixed = (val, decimal = 2) => {
   return Math.round(num * base) / base
 }
 
-// just accept format 2020-01-01 21:01:01
-const dateStringParser = (dateString = '') => {
-  const regexp = new RegExp(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/)
-  const match = dateString.match(regexp)
-  if (!match) {
-    return
-  }
-  const [ year, month, day, hours, minutes, second ] = match
-  const date = new Date()
-  date.setFullYear(+year)
-  date.setMonth(month - 1)
-  date.setDate(day)
-  date.setHours(hours) 
-  date.setMinutes(minutes) 
-  date.setSeconds(second) 
-  return {
-    match,
-    date,
-    dateString,
-    timestamp: +date
-  }
-}
-
 // date parser
 // just accpet timestamp
 const dateParser = timestamp => {
@@ -55,6 +32,7 @@ const dateParser = timestamp => {
     timestamp: +date,
     year,
     month,
+    fullmonth: month + 1,
     date,
     hours,
     minutes,
@@ -64,6 +42,31 @@ const dateParser = timestamp => {
     timeString,
     string: `${dateString} ${timeString}`
   } 
+}
+
+// just accept format 2020-01-01 21:01:01
+const dateStringParser = (dateString = '') => {
+  const regexp = new RegExp(/^(\d{4})-(\d{1,2})-(\d{1,2}) (\d{1,2}):(\d{1,2}):(\d{1,2})(?: (\d{1,3}))*$/)
+  const match = dateString.match(regexp)
+  if (!match) {
+    return
+  }
+  const [ year, month, day, hours, minutes, second, milliseconds ] = match.slice(1)
+  const date = new Date()
+  date.setFullYear(+year)
+  date.setMonth(+month - 1)
+  date.setDate(day)
+  date.setHours(hours) 
+  date.setMinutes(minutes) 
+  date.setSeconds(second) 
+  date.setMilliseconds(milliseconds) 
+  return {
+    match,
+    date,
+    dateParser: dateParser(date),
+    dateString,
+    timestamp: +date
+  }
 }
 
 export {
