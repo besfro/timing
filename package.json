@@ -1,10 +1,10 @@
 {
-  "name": "ttest",
+  "name": "timing",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "demo": "vue-cli-service serve ./demo/main.js",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --target lib --name Timing ./src/timing.js",
     "build:doc": "jsdoc -c jsdoc.json",
     "lint": "vue-cli-service lint"
   },

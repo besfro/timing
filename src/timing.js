@@ -45,6 +45,7 @@ class Timing {
     }
     // is already fetch timeServer
     this.isAdju = false
+    this.fetchIndex = 0
     // custom handler
     opts.fetchHandler && (this.fetchHandler = opts.fetchHandler)
   }
@@ -89,16 +90,17 @@ class Timing {
         fetchInfo && timeDiffArr.push(
           ctx.timeDiff(fetchInfo)
         )
-        return addTimeDiff(cnt, ctx)
+        return await addTimeDiff(cnt, ctx)
       }
     })(0, this)
     // adju fail
     if (timeDiffArr.length < 1) {
-      console.warn(`Time adju fail. Please adju again`)
+      console.warn(`Time adju fail. Please try again`)
     } else {
       timeDiffArr.sort((a, b) => a.offset - b.offset)
       console.log(timeDiffArr)
       this.isAdju = true
+      this._performance.clearResource()
       return Object.assign(this.timeInfo, timeDiffArr.shift())
     }
   }
@@ -128,21 +130,19 @@ class Timing {
    */
   async fetch () {
     // fetch timeServer
+    const url = this._fetcher.options.url = this._getTimeServerUrl()
     const fetchResult = await this._fetcher.fetch().catch(e => e)
     const mark = Date.now()
+    this.fetchIndex++
     if (fetchResult) {
       // handler 
       const timestamp = this.fetchHandler(fetchResult) || Date.now()
-      const serverTiming = this.getServerTiming()
+      const serverTiming = this._getPerformaceTiming(url) || {}
       return { timestamp, mark, serverTiming }
     }
     // update instance time
     // this.updateTimeInfo(timestamp, serverTiming)
     // return { timestamp, serverTiming }
-  }
-
-  getServerTiming () {
-    return this._getPerformaceTiming() || {}
   }
 
   /**
@@ -173,15 +173,8 @@ class Timing {
     return timestamp + offset + Date.now() - mark
   }
 
-  _getPerformaceTiming () {
-    // need performance api
-    if (!window.performance) {
-      console.warn(`Browser unsupport Web Performance API`)
-      return null
-    }
-
-    const { timeServer } = this.options
-    const timing = performance.getEntries().filter(item => item.name === timeServer.url).pop()
+  _getPerformaceTiming (name) {
+    const timing = performance.getEntriesByName(name).pop()
     
     if (!timing || !timing.responseStart) {
       console.warn(
@@ -193,6 +186,13 @@ class Timing {
     }
 
     return timing
+  }
+
+  _getTimeServerUrl () {
+    const { timeServer } = this.options
+    const url = timeServer.url
+    const query = url.indexOf('?') === -1 ? '?' : '&'
+    return `${url}${query}fi=${this.fetchIndex}`
   }
 
   _normalize (options) {

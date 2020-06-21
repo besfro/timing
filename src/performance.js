@@ -11,6 +11,14 @@ class Formance {
     this.name = name
     this.marks = []
     this.markIndex = 0
+    this.checked()
+  }
+
+  checked () {
+    // need performance api
+    if (!window.performance) {
+      console.warn(`Browser unsupport Web Performance API`)
+    }
   }
 
   mark () {
@@ -36,6 +44,10 @@ class Formance {
     performance.clearMarks()
     performance.clearMeasures()
     return entries
+  }
+
+  clearResource () {
+    performance.clearResourceTimings()
   }
 
 }
