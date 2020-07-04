@@ -25,7 +25,7 @@ const dateParser = timestamp => {
     instance.getSeconds(),
     instance.getMilliseconds()
   ]
-  const dateString = `${year}年${month}月${date}日`
+  const dateString = `${year}年${month + 1}月${date}日`
   const timeString = `${numFixed(hours)}:${numFixed(minutes)}:${numFixed(seconds)}`
   return {
     instance,
